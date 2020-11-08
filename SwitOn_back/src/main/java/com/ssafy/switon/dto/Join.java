@@ -1,0 +1,70 @@
+package com.ssafy.switon.dto;
+
+import java.sql.Timestamp;
+
+public class Join {
+	int id;
+	int user_id;
+	int study_id;
+	int isComplete;
+	Timestamp reg_date;
+	int isLeader;
+	int score;
+	int medal;
+	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public int getUser_id() {
+		return user_id;
+	}
+	public void setUser_id(int user_id) {
+		this.user_id = user_id;
+	}
+	public int getStudy_id() {
+		return study_id;
+	}
+	public void setStudy_id(int study_id) {
+		this.study_id = study_id;
+	}
+	public int getIsComplete() {
+		return isComplete;
+	}
+	public void setIsComplete(int isComplete) {
+		this.isComplete = isComplete;
+	}
+	public Timestamp getReg_date() {
+		return reg_date;
+	}
+	public void setReg_date(Timestamp reg_date) {
+		this.reg_date = reg_date;
+	}
+	public int getIsLeader() {
+		return isLeader;
+	}
+	public void setIsLeader(int isLeader) {
+		this.isLeader = isLeader;
+	}
+	public int getScore() {
+		return score;
+	}
+	public void setScore(int score) {
+		this.score = score;
+	}
+	public int getMedal() {
+		return medal;
+	}
+	public void setMedal(int medal) {
+		this.medal = medal;
+	}
+	@Override
+	public String toString() {
+		return "Join [id=" + id + ", user_id=" + user_id + ", study_id=" + study_id + ", isComplete=" + isComplete
+				+ ", reg_date=" + reg_date + ", isLeader=" + isLeader + ", score=" + score + ", medal=" + medal + "]";
+	}
+	
+	
+}

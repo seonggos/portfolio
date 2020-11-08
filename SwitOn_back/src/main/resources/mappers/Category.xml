@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- mappers/User.xml -->
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="category">
+	
+	<!-- 대분류 전체 정보 조회 -->
+	<select id="selectUpperCategory" resultType="UpperCategory">
+		select id, name
+		from uppercategory
+	</select>
+	
+	<!-- 소분류 전체 정보 조회 -->
+	<select id="selectLowerCategory" resultType="LowerCategory">
+		select id, name, uppercategory_id
+		from lowercategory
+	</select>
+	
+	<!-- 대분류에 포함되는 소분류 전체 조회 -->
+	<select id="selectUp_LowCategory" resultType="LowerCategory">
+		select id, name, uppercategory_id 
+		from lowercategory
+		where uppercategory_id = #{uppercategory_id}
+	</select>
+	
+	<!-- 소분류 카테고리 상세 조회 -->
+	<select id="selectLowerCategoryById" resultType="LowerCategory">
+		select id, name, uppercategory_id
+		from lowercategory
+		where id = #{id}
+	</select>
+	
+	<!-- 대분류 카테고리 상세 조회 -->
+	<select id="selectUpperCategoryById" resultType="UpperCategory">
+		select id, name
+		from uppercategory
+		where id = #{id}
+	</select>
+	
+	<!-- 소분류 키워드로 검색 -->
+	<select id="selectLowerCategoryByKeyword" resultType="LowerCategorySimpleDTO">
+	    select id, name
+	    from lowercategory
+	    where name like #{keyword}
+	</select>
+
+	<!-- 대분류 키워드로 검색 -->
+	<select id="selectUpperCategoryByKeyword" resultType="UpperCategory">
+	    select id, name
+	    from uppercategory
+	    where name like #{keyword}
+	</select>
+	
+	<select id="selectUpperNameByLowerCategoryId" resultType="String">
+		select name
+		from uppercategory
+		where id = (select uppercategory_id
+						from lowercategory
+						where id = #{id} )
+	</select>
+	
+</mapper>

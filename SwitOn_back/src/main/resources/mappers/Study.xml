@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- mappers/Study.xml -->
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="study">
+
+	<!-- 스터디를 종료시킨다 -->
+	<update id="updateStudyFinish">
+		update study
+		set isFinish = true
+		where id = #{id}
+	</update>
+	
+	<!-- 아직 종료되지 않은 스터디 중에서 시간이 만료된 스터디의 아이디 검색 -->
+	<select id="selectNotFinishedStudyIds" resultType="Integer">
+		select id
+		from study
+		where isFinish = false
+		and end_term <![CDATA[ < ]]> #{time}
+	</select>
+
+	<!-- 키워드로 스터디 검색 -->
+	<select id="selectStudyByKeyword" resultType="Study">
+		select id,
+			name,
+			user_id,
+			description,
+			code,
+			isPrivate,
+			isRecruit,
+			start_term,
+			end_term,
+			created_at,
+			week,
+			start_time,
+			end_time,
+			lowercategory_id,
+			logo,
+			users_limit,
+			(select count(*) from `join` where study_id = study.id) as users_current
+		from study
+		where name like #{keyword}
+		and isFinish = 0
+	</select>
+
+	<!-- 내가 만든 최신 스터디의 아이디 한개 가져오기 -->
+	<select id="getRecentStudyIdByUserId" resultType="Integer">
+		select id
+		from study
+		where user_id = #{user_id}
+		order by created_at desc
+		limit 1
+	</select>
+	
+	<!-- lower 카테고리 아이디로 스터디 리스트 반환 -->
+	<select id="selectStudiesByLowercategoryId" resultType="Study">
+		select id,
+			name,
+			user_id,
+			description,
+			code,
+			isPrivate,
+			isRecruit,
+			start_term,
+			end_term,
+			created_at,
+			week,
+			start_time,
+			end_time,
+			lowercategory_id,
+			logo,
+			users_limit,
+			(select count(*) from `join` where study_id = study.id) as users_current
+		from study
+		where lowercategory_id = #{lowercategory_id}
+		and isFinish = 0
+	</select>
+
+	<!-- 스터디 리스트 반환 -->
+	<select id="selectStudies" resultType="Study">
+		select id,
+			name,
+			user_id,
+			description,
+			code,
+			isPrivate,
+			isRecruit,
+			start_term,
+			end_term,
+			created_at,
+			week,
+			start_time,
+			end_time,
+			lowercategory_id,
+			logo,
+			users_limit,
+			(select count(*) from `join` where study_id = study.id) as users_current
+		from study
+		where isFinish = 0
+	</select>
+	
+	<!-- 스터디 상세 정보 반환 -->
+	<select id="selectStudyById" resultType="Study">
+		select id,
+			name,
+			user_id,
+			description,
+			code,
+			isPrivate,
+			isRecruit,
+			start_term,
+			end_term,
+			created_at,
+			week,
+			start_time,
+			end_time,
+			lowercategory_id,
+			logo,
+			users_limit,
+			(select count(*) from `join` where study_id = #{id}) as users_current
+		from study
+		where id = #{id}
+	</select>
+	
+	<!-- 유저의 스터디 정보 반환 -->
+	<select id="selectLeaderStudiesByUserId" resultType="Study">
+		select id,
+			name,
+			user_id,
+			description,
+			code,
+			isPrivate,
+			isRecruit,
+			start_term,
+			end_term,
+			created_at,
+			week,
+			start_time,
+			end_time,
+			lowercategory_id,
+			logo,
+			users_limit
+		from study
+		where user_id = #{user_Id}
+	</select>
+	
+	<!-- 스터디 생성 -->
+	<insert id="insertStudy" parameterType="Study">
+		insert into study(
+				name,
+				user_id,
+				description,
+				code,
+				isPrivate,
+				isRecruit,
+				start_term,
+				end_term,
+				week,
+				start_time,
+				end_time,
+				lowercategory_id,
+				logo,
+				users_limit
+			)
+		values (
+				#{name},
+				#{user_id},
+				#{description},
+				#{code},
+				#{isPrivate},
+				1,
+				#{start_term},
+				#{end_term},
+				#{week},
+				#{start_time},
+				#{end_time},
+				#{lowercategory_id},
+				#{logo},
+				#{users_limit}
+			)
+	</insert>
+	
+	<!-- 스터디 수정 -->
+	<update id="updateStudy" parameterType = "Study">
+		update study
+		set name = #{name},
+			user_id = #{user_id},
+			description = #{description},
+			code = #{code},
+			isPrivate = #{isPrivate},
+			start_term = #{start_term},
+			end_term = #{end_term},
+			week = #{week},
+			start_time = #{start_time},
+			end_time = #{end_time},
+			lowercategory_id = #{lowercategory_id},
+			logo = #{logo},
+			users_limit = #{users_limit}
+		where id = #{id}
+	</update>
+	
+	<!-- 스터디 삭제 -->
+	<delete id="deleteStudy">
+		delete from study
+		where id = #{id}
+	</delete>
+	
+	<!-- 스터디인포를 모두 조회 -->
+	<select id="selectStudyInfo" resultType="StudyInfo">
+		select id,
+			   (select count(*) from `join` where study_id = study.id) as user,
+			   (select count(*) from `studylike` where study_id = study.id) as likes,
+			   (select count(*) from `schedule` where study_id = study.id) as schedule,
+			   (select count(id) from article where board_id in (select id from board where study_id = study.id)) as articles
+		from study
+		where isFinish = 0
+	</select>
+	
+	<!-- 스터디 검색어 엔터 쳤을 때 스터디 정보들 카드DTO로 반환 -->
+	<select id="selectStudyByKeywordEnter" resultType="Study">
+		select id,
+			name,
+			user_id,
+			description,
+			code,
+			isPrivate,
+			isRecruit,
+			start_term,
+			end_term,
+			created_at,
+			week,
+			start_time,
+			end_time,
+			lowercategory_id,
+			logo,
+			users_limit,
+			(select count(*) from `join` where study_id = study.id) as users_current
+		from study
+		where name like #{keyword}
+		and isFinish = 0
+	</select>
+	
+	<!-- 유저의 종료된 스터디 반환 -->
+	<select id="selectEndStudiesByUserId" resultType="Study">
+		select id,
+			name,
+			user_id,
+			description,
+			code,
+			isPrivate,
+			isRecruit,
+			start_term,
+			end_term,
+			created_at,
+			week,
+			start_time,
+			end_time,
+			lowercategory_id,
+			logo,
+			users_limit
+		from study
+		where id in (select study_id from `join` where user_id = #{user_id})
+		and isFinish = 1
+	</select>
+
+	<!-- 유저의 종료되지않은 스터디 반환 -->
+	<select id="selectNotEndStudiesByUserId" resultType="Study">
+		select id,
+			name,
+			user_id,
+			description,
+			code,
+			isPrivate,
+			isRecruit,
+			start_term,
+			end_term,
+			created_at,
+			week,
+			start_time,
+			end_time,
+			lowercategory_id,
+			logo,
+			users_limit
+		from study
+		where id in (select study_id from `join` where user_id = #{user_id})
+		and isFinish = 0
+	</select>
+</mapper>
